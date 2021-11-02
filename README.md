@@ -196,8 +196,15 @@ map[int]string{
 }
 ```
 
-Individual map elements (both keys and values) are parsed recursively
-according to their underlying data-type.
+Individual map elements (both keys and values) are parsed recursively according
+to their underlying data-types. Recursive parsing of maps is not supported.
+
+#### Beware! Map keys are optional
+
+There is one additional catch in the map parsing logic which you should be aware
+of - environment variables defining map are implicitly **optional** and no
+checking on their present is performed! For more information, please see [Map
+keys are optional](#map-keys-are-optional) section below.
 
 ### List of default parsers
 
@@ -241,3 +248,51 @@ would like to report a bug, please open a GitHub issue.
 
 The project is actively maintained by Showmax s.r.o. As we use the package
 internally, we are concerned in keeping this project up to date.
+
+## Design choices & Limitations
+
+In this section, we will no longer describe `env` package behaviour, but we will
+focus on specific design decisions and provide a reasoning behind them. For
+those who are interested just in a quick start manual, feel free to skip this
+section. Those of you who might want to propose some improvement of the package
+or deeper understand why `env` package behaves in some potentially unexpected
+way, this is the section which should provide you an explanation.
+
+### Map keys are optional
+
+As we described above, all environment variables defining maps are `optional`
+even though we criticized `optional` variables at the very beginning of this
+document. The reason of this behavior is the way map parsing is implemented. In
+the case of all other data types (primitive types, arrays, `TextUnmarshaler`),
+there exists a value of environment variable expressing an empty value - empty
+string. As the operating system differentiates whether an environment variable
+is not set or set to an empty string, we can say that all environment variables
+are `required` and yet support parsing of an empty value. Unfortunately this
+doesn't hold for maps.
+
+In map parsing we denote every map key by environment variable presence, not by
+its value! Consequence of this fact is that an empty map will be parsed from an
+environment where no environment variable with a given prefix is present. As
+parsing of an empty map is perfectly valid use-case, we cannot fail if no
+environment variable is present and consequently environment variables defining
+map content are `optional`. This optionality doesn't apply only to an empty map,
+but in general to *any* map. If you specify `N` key-value pairs for the map and
+you make a typo in one of those environment variables prefixes, the map will be
+parsed with `N-1` keys and no error will be reported, because the parsing
+algorithm simply cannot know you wanted to parse `N` values and not `N-1`
+values. So again, even in the general case, the map cannot provide any strong
+guarantees on environment variable presence.
+
+The root cause of this is that we try to encode map in environment variables and
+we are hitting limits of environment variable configuration. If we used a
+JSON-based configuration or in general any other file-based configuration, we
+would be able to express an empty map by an empty object. And we could `require`
+the presence of the config file key even in case its content is empty. The same
+again applies to the generic `N` and `N-1` problem. We could simply remedy it by
+specifying `N` keys in the object and no typos would be possible as we would see
+the `N` keys there. But environment variables are not generic enough to allow us
+doing this. In other words, those properties of maps are not a bug, but a
+consequence of environment variable based configuration parsing. For more
+details, take a look at this GitHub
+[issue](https://github.com/Showmax/env/issues/13) where this problematic was
+discussed.
