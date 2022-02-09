@@ -3,6 +3,21 @@
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/Showmax/env)](https://pkg.go.dev/github.com/Showmax/env)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+
+# default-values branch
+
+This branch supports default values defined in `default` tag.
+All types are supported except the map, which is [a bit different](https://github.com/Showmax/env#map-keys-are-optional).
+
+
+```go
+type config struct {
+	Bool        bool         `env:"BOOL" default:"true"`
+	Int         int           `env:"INT" default:"42"`
+	String      string        `env:"STRING" default:"foo"`
+}
+```
+
 # env
 
 `env` is yet another package for parsing various data types from environment

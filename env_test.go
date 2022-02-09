@@ -613,3 +613,54 @@ func TestFileMode(t *testing.T) {
 		os.Unsetenv("FILE_MODE")
 	}
 }
+
+func TestDefaultValue(t *testing.T) {
+	a := assert.New(t)
+
+	type Foo struct {
+		Foo string `env:"FOO" default:"FOO"`
+	}
+
+	type Bar struct {
+		Bar string `env:"BAR" default:"BAR_BAR"`
+	}
+
+	type config struct {
+		Foo
+		Bar         `env:"BAR_"`
+		Bool        *bool         `env:"BOOL" default:"true"`
+		Duration    time.Duration `env:"DURATION" default:"10ms"`
+		Int         int           `env:"INT" default:"1"`
+		IntSlice    *[]int        `env:"INT_SLICE" default:"1,2,\"3\""`
+		String      string        `env:"STRING" default:"STRING"`
+		StringSlice []string      `env:"STRING_SLICE" default:"\"comma separated\",values"`
+		URLValue    url.URL       `env:"URL_VALUE" default:"https://example.org"`
+		URLPtr      *url.URL      `env:"URL_PTR" default:"https://example.org"`
+		Regexp      regexp.Regexp `env:"REGEXP" default:"^[a-c]bbf*d+c*$"`
+		Template    tt.Template   `env:"TEMPLATE" default:"{{23 -}} < {{- 45}}"`
+		badConfig   int           //nolint:structcheck,unused
+	}
+
+	var cfg config
+	err := Load(&cfg, "")
+	a.NoError(err)
+
+	goodConfig := config{
+		Foo:         Foo{"FOO"},
+		Bar:         Bar{"BAR_BAR"},
+		Bool:        &trueVar,
+		Duration:    10 * time.Millisecond,
+		Int:         1,
+		IntSlice:    &[]int{1, 2, 3},
+		String:      "STRING",
+		StringSlice: []string{"comma separated", "values"},
+		URLValue:    url.URL{Scheme: "https", Host: "example.org"},
+		URLPtr:      &url.URL{Scheme: "https", Host: "example.org"},
+		Regexp:      *regexp.MustCompile("^[a-c]bbf*d+c*$"),
+		Template: func() tt.Template {
+			return *tt.Must(tt.New("from_env").
+				Parse("{{23 -}} < {{- 45}}"))
+		}(),
+	}
+	a.Equal(goodConfig, cfg)
+}

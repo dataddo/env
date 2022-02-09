@@ -119,12 +119,39 @@ func (l *loader) loadStruct(rv reflect.Value, prefix string) []error {
 		if isStruct && !hasParser && !isTU {
 			// Recurse to the field which is a structure.
 			errs = append(errs, l.loadStruct(fv, name)...)
-		} else if err := l.loadVar(fv, name); err != nil {
+			continue
+		}
+		if err := l.loadVar(fv, name); err != nil {
+			if errors.Is(err, errVarIsMissing) && hasDefault(f) {
+				if err := l.setDefaultValue(fv, f); err != nil {
+					errs = append(errs, fmt.Errorf("%q: %w", name, err))
+				}
+				continue
+			}
 			errs = append(errs, fmt.Errorf("%q: %w", name, err))
 		}
 	}
 	return errs
 }
+
+func hasDefault(sf reflect.StructField) bool {
+	_, ok := sf.Tag.Lookup("default")
+	return ok
+}
+
+func (l *loader) setDefaultValue(rv reflect.Value, sf reflect.StructField) error {
+	defaultValue := sf.Tag.Get("default")
+	if !l.hasParser(rv.Type()) {
+		rv = follow(rv)
+	}
+	if err := l.parseAndSetValue(defaultValue, rv); err != nil {
+		rt := rv.Type()
+		return fmt.Errorf("cannot parse default value %q as %s: %w", defaultValue, rt, err)
+	}
+	return nil
+}
+
+var errVarIsMissing = errors.New("variable missing")
 
 func (l *loader) loadVar(rv reflect.Value, name string) error {
 	if !l.hasParser(rv.Type()) {
@@ -139,7 +166,7 @@ func (l *loader) loadVar(rv reflect.Value, name string) error {
 	}
 	s, ok := os.LookupEnv(name)
 	if !ok {
-		return errors.New("variable missing")
+		return errVarIsMissing
 	}
 	if err := l.parseAndSetValue(s, rv); err != nil {
 		rt := rv.Type()
