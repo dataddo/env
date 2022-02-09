@@ -12,9 +12,9 @@ All types are supported except the map, which is [a bit different](https://githu
 
 ```go
 type config struct {
-	Bool        bool         `env:"BOOL" default:"true"`
-	Int         int           `env:"INT" default:"42"`
-	String      string        `env:"STRING" default:"foo"`
+	Bool   bool   `env:"BOOL" default:"true"`
+	Int    int    `env:"INT" default:"42"`
+	String string `env:"STRING" default:"foo"`
 }
 ```
 
