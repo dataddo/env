@@ -265,6 +265,12 @@ internally and maintains it. It's possible that our vision of the project will
 differ from the original one, but we will try to keep the project as backward
 compatible as possible.
 
+### Go version support
+
+We support all [supported Go versions](https://go.dev/doc/devel/release#policy).
+That means we support the last two major Go versions. With [Go's compatibility
+promise](https://go.dev/doc/go1compat), there is no need to support more. 
+
 ## Design choices & Limitations
 
 In this section, we will no longer describe `env` package behaviour, but we will
