@@ -3,13 +3,6 @@
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/prochac/env)](https://pkg.go.dev/github.com/prochac/env)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-
-# default-values branch
-
-This branch supports default values defined in `default` tag.
-All types are supported except the map, which is [a bit different](https://github.com/prochac/env#map-keys-are-optional).
-
-
 ```go
 type config struct {
 	Bool   bool   `env:"BOOL" default:"true"`
@@ -129,6 +122,11 @@ func main() {
 All env variable names must be prefixed by `PREFIX_` in this example so the
 final variable name will not be `BAR_BAR` but `PREFIX_BAR_BAR`. Empty prefix
 is also allowed here.
+
+### Default values
+
+This fork supports default values defined in `default` tag.
+All types are supported except the map, which is [a bit different](https://github.com/prochac/env#map-keys-are-optional).
 
 ## Parsers
 
