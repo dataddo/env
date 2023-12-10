@@ -163,7 +163,6 @@ func TestLoadInvalidVar(t *testing.T) {
 		err := Load(&cfg, examplePrefix)
 		a.Error(err, "loading env with invalid %q should fail", k)
 	}
-
 }
 
 func TestSlice(t *testing.T) {

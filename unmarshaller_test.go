@@ -10,7 +10,7 @@ import (
 type speed float64
 
 func (s *speed) UnmarshalText(text []byte) error {
-	var speedMultiplier = map[string]float64{
+	speedMultiplier := map[string]float64{
 		"kph": 1,
 		"mph": 1.60934,
 		"kts": 1.852,
