@@ -1,13 +1,13 @@
-[![Build Status](https://github.com/Showmax/env/workflows/Go/badge.svg)](https://github.com/Showmax/env/actions)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Showmax/env)](https://goreportcard.com/report/github.com/Showmax/env)
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/Showmax/env)](https://pkg.go.dev/github.com/Showmax/env)
+[![Build Status](https://github.com/prochac/env/workflows/Go/badge.svg)](https://github.com/prochac/env/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/prochac/env)](https://goreportcard.com/report/github.com/prochac/env)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/prochac/env)](https://pkg.go.dev/github.com/prochac/env)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
 # default-values branch
 
 This branch supports default values defined in `default` tag.
-All types are supported except the map, which is [a bit different](https://github.com/Showmax/env#map-keys-are-optional).
+All types are supported except the map, which is [a bit different](https://github.com/prochac/env#map-keys-are-optional).
 
 
 ```go
@@ -118,7 +118,7 @@ Finally, the configuration can be parsed and loaded like this:
 ```go
 package main
 
-import "github.com/Showmax/env"
+import "github.com/prochac/env"
 
 func main() {
 	var cfg config
@@ -261,8 +261,11 @@ would like to report a bug, please open a GitHub issue.
 
 ## Project status
 
-The project is actively maintained by Showmax s.r.o. As we use the package
-internally, we are concerned in keeping this project up to date.
+The project was actively maintained by Showmax s.r.o., but it is not anymore.
+Ex-Showmaxer adopted this project in Dataddo, and now it's Dataddo who uses it
+internally and maintains it. It's possible that our vision of the project will
+differ from the original one, but we will try to keep the project as backward
+compatible as possible.
 
 ## Design choices & Limitations
 
