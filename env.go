@@ -19,7 +19,7 @@ import (
 
 // parseFunc takes a string and coerces it into some target type. If coercion
 // fails, an error is returned.
-type parseFunc func(s string) (interface{}, error)
+type parseFunc func(s string) (any, error)
 
 var (
 	errInvalidDst    = errors.New("dst must be struct or struct pointer")
@@ -43,7 +43,7 @@ func (e *loadError) Error() string {
 
 // Load will load configuration from environment to dst, which must be a struct
 // or a struct pointer.
-func Load(dst interface{}, prefix string) error {
+func Load(dst any, prefix string) error {
 	return newLoader().Load(dst, prefix)
 }
 
@@ -59,7 +59,7 @@ func newLoader() *loader {
 
 // Load will load configuration from environment to dst, which must be a struct
 // or a struct pointer.
-func (l *loader) Load(dst interface{}, prefix string) error {
+func (l *loader) Load(dst any, prefix string) error {
 	errs := l.loadStruct(reflect.ValueOf(dst), prefix)
 	if len(errs) > 0 {
 		return &loadError{errs}
@@ -377,11 +377,11 @@ func defaultParsers() map[reflect.Type]parseFunc {
 	}
 }
 
-func parseBool(s string) (interface{}, error) {
+func parseBool(s string) (any, error) {
 	return strconv.ParseBool(s)
 }
 
-func parseFileMode(s string) (interface{}, error) {
+func parseFileMode(s string) (any, error) {
 	if len(s) > 0 && s[0] != '0' {
 		return nil, fmt.Errorf("file mode must be prefixed with 0")
 	}
@@ -392,67 +392,67 @@ func parseFileMode(s string) (interface{}, error) {
 	return os.FileMode(val), nil
 }
 
-func parseFloat32(s string) (interface{}, error) {
+func parseFloat32(s string) (any, error) {
 	val, err := strconv.ParseFloat(s, 32)
 	return float32(val), err
 }
 
-func parseFloat64(s string) (interface{}, error) {
+func parseFloat64(s string) (any, error) {
 	return strconv.ParseFloat(s, 64)
 }
 
-func parseInt(s string) (interface{}, error) {
+func parseInt(s string) (any, error) {
 	return strconv.Atoi(s)
 }
 
-func parseUint(s string) (interface{}, error) {
+func parseUint(s string) (any, error) {
 	val, err := strconv.ParseUint(s, 10, strconv.IntSize)
 	return uint(val), err
 }
 
-func parseInt8(s string) (interface{}, error) {
+func parseInt8(s string) (any, error) {
 	val, err := strconv.ParseInt(s, 10, 8)
 	return int8(val), err
 }
 
-func parseUint8(s string) (interface{}, error) {
+func parseUint8(s string) (any, error) {
 	val, err := strconv.ParseUint(s, 10, 8)
 	return uint8(val), err
 }
 
-func parseInt16(s string) (interface{}, error) {
+func parseInt16(s string) (any, error) {
 	val, err := strconv.ParseInt(s, 10, 16)
 	return int16(val), err
 }
 
-func parseUint16(s string) (interface{}, error) {
+func parseUint16(s string) (any, error) {
 	val, err := strconv.ParseUint(s, 10, 16)
 	return uint16(val), err
 }
 
-func parseInt32(s string) (interface{}, error) {
+func parseInt32(s string) (any, error) {
 	val, err := strconv.ParseInt(s, 10, 32)
 	return int32(val), err
 }
 
-func parseUint32(s string) (interface{}, error) {
+func parseUint32(s string) (any, error) {
 	val, err := strconv.ParseUint(s, 10, 32)
 	return uint32(val), err
 }
 
-func parseInt64(s string) (interface{}, error) {
+func parseInt64(s string) (any, error) {
 	return strconv.ParseInt(s, 10, 64)
 }
 
-func parseUint64(s string) (interface{}, error) {
+func parseUint64(s string) (any, error) {
 	return strconv.ParseUint(s, 10, 64)
 }
 
-func parseString(s string) (interface{}, error) {
+func parseString(s string) (any, error) {
 	return s, nil
 }
 
-func parseRegex(s string) (interface{}, error) {
+func parseRegex(s string) (any, error) {
 	r, err := regexp.Compile(s)
 	if err != nil {
 		return nil, err
@@ -460,11 +460,11 @@ func parseRegex(s string) (interface{}, error) {
 	return *r, nil
 }
 
-func parseDuration(s string) (interface{}, error) {
+func parseDuration(s string) (any, error) {
 	return time.ParseDuration(s)
 }
 
-func parseURL(s string) (interface{}, error) {
+func parseURL(s string) (any, error) {
 	url, err := url.Parse(s)
 	if err != nil {
 		return nil, err
@@ -473,7 +473,7 @@ func parseURL(s string) (interface{}, error) {
 	return *url, nil
 }
 
-func parseTextTemplate(s string) (interface{}, error) {
+func parseTextTemplate(s string) (any, error) {
 	t, err := tt.New("from_env").Parse(s)
 	if err != nil {
 		return nil, err
