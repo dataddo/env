@@ -1,4 +1,4 @@
-module github.com/Showmax/env
+module github.com/prochac/env
 
 go 1.20
 
