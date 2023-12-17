@@ -1,6 +1,6 @@
-[![Build Status](https://github.com/prochac/env/workflows/Go/badge.svg)](https://github.com/prochac/env/actions)
-[![Go Report Card](https://goreportcard.com/badge/github.com/prochac/env)](https://goreportcard.com/report/github.com/prochac/env)
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/prochac/env)](https://pkg.go.dev/github.com/prochac/env)
+[![Build Status](https://github.com/dataddo/env/workflows/Go/badge.svg)](https://github.com/dataddo/env/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dataddo/env)](https://goreportcard.com/report/github.com/dataddo/env)
+[![PkgGoDev](https://pkg.go.dev/badge/go.dataddo.com/env)](https://pkg.go.dev/go.dataddo.com/env)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ```go
@@ -111,7 +111,7 @@ Finally, the configuration can be parsed and loaded like this:
 ```go
 package main
 
-import "github.com/prochac/env"
+import "go.dataddo.com/env"
 
 func main() {
 	var cfg config
@@ -126,7 +126,7 @@ is also allowed here.
 ### Default values
 
 This fork supports default values defined in `default` tag.
-All types are supported except the map, which is [a bit different](https://github.com/prochac/env#map-keys-are-optional).
+All types are supported except the map, which is [a bit different](https://github.com/dataddo/env#map-keys-are-optional).
 
 ## Parsers
 
