@@ -46,8 +46,7 @@ decided to write the yet another package. We respect that use-case that
 doesn't fit our needs can fit someone else's needs.
 
 **It is worth mentioning that `env` does not have any external dependencies
-beside standard library packages.** Aside from
-[testify](https://github.com/stretchr/testify) which is only used in tests.
+beside standard library packages.**
 
 ## Usage
 

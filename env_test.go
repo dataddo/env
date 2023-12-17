@@ -12,8 +12,6 @@ import (
 	"testing"
 	tt "text/template"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 type Foo struct {
@@ -119,21 +117,17 @@ func setenv(env environment) {
 // with valid values for their respective types) doesn't fail and produces
 // a config which contains the values from the environment.
 func TestLoadOK(t *testing.T) {
-	a := assert.New(t)
-
 	var cfg config
 	setenv(goodEnv)
 
 	err := Load(&cfg, examplePrefix)
-	a.NoError(err, "loading correct env failed")
-	a.Equal(goodConfig, cfg)
+	noError(t, err, "loading correct env failed")
+	wantEqual(t, goodConfig, cfg)
 }
 
 // TestLoadMissingVar will try to remove each variable from goodEnv one by one.
 // We expect to get an error.
 func TestLoadMissingVar(t *testing.T) {
-	a := assert.New(t)
-
 	var cfg config
 	for k := range goodEnv {
 		oneMissing := goodEnv.dup()
@@ -141,7 +135,7 @@ func TestLoadMissingVar(t *testing.T) {
 		setenv(oneMissing)
 
 		err := Load(&cfg, examplePrefix)
-		a.Error(err, "loading env with %q missing should fail", k)
+		wantError(t, err, "loading env with %q missing should fail", k)
 	}
 }
 
@@ -152,8 +146,6 @@ func TestLoadMissingVar(t *testing.T) {
 // parsing routines are handled correctly for each type and one of its possible
 // invalid inputs.
 func TestLoadInvalidVar(t *testing.T) {
-	a := assert.New(t)
-
 	var cfg config
 	for k, v := range invalidVars {
 		oneInvalid := goodEnv.dup()
@@ -161,13 +153,11 @@ func TestLoadInvalidVar(t *testing.T) {
 		setenv(oneInvalid)
 
 		err := Load(&cfg, examplePrefix)
-		a.Error(err, "loading env with invalid %q should fail", k)
+		wantError(t, err, "loading env with invalid %q should fail", k)
 	}
 }
 
 func TestSlice(t *testing.T) {
-	a := assert.New(t)
-
 	samples := map[string][]string{
 		`"x"`:             {"x"},
 		``:                {},
@@ -216,14 +206,12 @@ func TestSlice(t *testing.T) {
 		os.Setenv("SLICE", s)
 
 		err := Load(&c, "")
-		a.NoError(err)
-		a.Equal(refOut, c.Slice)
+		noError(t, err)
+		wantEqual(t, refOut, c.Slice)
 	}
 }
 
 func TestSliceBad(t *testing.T) {
-	a := assert.New(t)
-
 	samples := []string{
 		`,`,
 		`"`,
@@ -239,20 +227,18 @@ func TestSliceBad(t *testing.T) {
 		os.Setenv("SLICE", s)
 
 		err := Load(&c, "")
-		a.Error(err)
+		wantError(t, err)
 	}
 }
 
 // TestLoadUnexported tries to load good environment into a structure with an
 // badConfig field. That should fail, but it should not panic.
 func TestLoadUnexported(t *testing.T) {
-	a := assert.New(t)
-
 	var cfg badConfig
 	setenv(goodEnv)
 
 	err := Load(&cfg, examplePrefix)
-	a.Error(err, "loading badConfig struct should fail")
+	wantError(t, err, "loading badConfig struct should fail")
 }
 
 func ExampleLoad() {
@@ -338,8 +324,6 @@ func ExampleLoad_shared() {
 }
 
 func TestMapStrings(t *testing.T) {
-	a := assert.New(t)
-
 	samples := []map[string]string{
 		{
 			"a": "A",
@@ -370,8 +354,8 @@ func TestMapStrings(t *testing.T) {
 		var c cfg
 
 		err := Load(&c, "")
-		a.NoError(err)
-		a.Equal(ref, c.Map)
+		noError(t, err)
+		wantEqual(t, ref, c.Map)
 
 		for k := range ref {
 			os.Unsetenv("MAP_" + k)
@@ -380,8 +364,6 @@ func TestMapStrings(t *testing.T) {
 }
 
 func TestMapIntKeys(t *testing.T) {
-	a := assert.New(t)
-
 	samples := []map[int]string{
 		{
 			1:  "one",
@@ -401,8 +383,8 @@ func TestMapIntKeys(t *testing.T) {
 		var c cfg
 
 		err := Load(&c, "")
-		a.NoError(err)
-		a.Equal(ref, c.Map)
+		noError(t, err)
+		wantEqual(t, ref, c.Map)
 
 		for k := range ref {
 			os.Unsetenv("MAP_" + strconv.Itoa(k))
@@ -411,8 +393,6 @@ func TestMapIntKeys(t *testing.T) {
 }
 
 func TestMapFloatKeys(t *testing.T) {
-	a := assert.New(t)
-
 	samples := []map[float64]string{
 		{
 			1.0: "one",
@@ -436,8 +416,8 @@ func TestMapFloatKeys(t *testing.T) {
 		var c cfg
 		err := Load(&c, "")
 
-		a.NoError(err)
-		a.Equal(ref, c.Map)
+		noError(t, err)
+		wantEqual(t, ref, c.Map)
 
 		for k := range ref {
 			os.Unsetenv("MAP_" + fmt.Sprintf("%g", k))
@@ -446,8 +426,6 @@ func TestMapFloatKeys(t *testing.T) {
 }
 
 func TestMapArrVals(t *testing.T) {
-	a := assert.New(t)
-
 	samples := []map[string][]string{
 		{
 			"a": {"A", "B", "C"},
@@ -480,8 +458,8 @@ func TestMapArrVals(t *testing.T) {
 		var c cfg
 
 		err := Load(&c, "")
-		a.NoError(err)
-		a.Equal(ref, c.Map)
+		noError(t, err)
+		wantEqual(t, ref, c.Map)
 
 		for k := range ref {
 			os.Unsetenv("MAP_" + k)
@@ -490,8 +468,6 @@ func TestMapArrVals(t *testing.T) {
 }
 
 func TestMapPtrs(t *testing.T) {
-	a := assert.New(t)
-
 	x := "x"
 	y := "y"
 	X := "X"
@@ -526,11 +502,11 @@ func TestMapPtrs(t *testing.T) {
 		var c cfg
 
 		err := Load(&c, "")
-		a.NoError(err)
+		noError(t, err)
 
 		dRef := deptr(ref)
 		dMap := deptr(c.Map)
-		a.Equal(dRef, dMap)
+		wantEqual(t, dRef, dMap)
 
 		for k := range ref {
 			os.Unsetenv("MAP_" + *k)
@@ -539,8 +515,6 @@ func TestMapPtrs(t *testing.T) {
 }
 
 func TestMapDurations(t *testing.T) {
-	a := assert.New(t)
-
 	samples := []map[time.Duration]time.Duration{
 		{
 			1 * time.Second:       1 * time.Minute,
@@ -560,8 +534,8 @@ func TestMapDurations(t *testing.T) {
 		var c cfg
 
 		err := Load(&c, "")
-		a.NoError(err)
-		a.Equal(ref, *c.Map)
+		noError(t, err)
+		wantEqual(t, ref, *c.Map)
 
 		for k := range ref {
 			os.Unsetenv("MAP_" + k.String())
@@ -576,8 +550,6 @@ func (m *customMap) UnmarshalText(text []byte) error {
 }
 
 func TestMapWithCustomUnmarshaler(t *testing.T) {
-	a := assert.New(t)
-
 	type cfg struct {
 		Map customMap `env:"MAP"`
 	}
@@ -586,13 +558,11 @@ func TestMapWithCustomUnmarshaler(t *testing.T) {
 
 	var c cfg
 	err := Load(&c, "")
-	a.NoError(err)
-	a.Equal(customMap{"key": "value"}, c.Map)
+	noError(t, err)
+	wantEqual(t, customMap{"key": "value"}, c.Map)
 }
 
 func TestFileMode(t *testing.T) {
-	a := assert.New(t)
-
 	samples := map[string]string{
 		"0644": "-rw-r--r--",
 		"0777": "-rwxrwxrwx",
@@ -606,16 +576,14 @@ func TestFileMode(t *testing.T) {
 		var c cfg
 
 		err := Load(&c, "")
-		a.NoError(err)
-		a.Equal(v, c.Mode.String())
+		noError(t, err)
+		wantEqual(t, v, c.Mode.String())
 
 		os.Unsetenv("FILE_MODE")
 	}
 }
 
 func TestDefaultValue(t *testing.T) {
-	a := assert.New(t)
-
 	type Foo struct {
 		Foo string `env:"FOO" default:"FOO"`
 	}
@@ -642,7 +610,7 @@ func TestDefaultValue(t *testing.T) {
 
 	var cfg config
 	err := Load(&cfg, "")
-	a.NoError(err)
+	noError(t, err)
 
 	goodConfig := config{
 		Foo:         Foo{"FOO"},
@@ -661,5 +629,47 @@ func TestDefaultValue(t *testing.T) {
 				Parse("{{23 -}} < {{- 45}}"))
 		}(),
 	}
-	a.Equal(goodConfig, cfg)
+	wantEqual(t, goodConfig, cfg)
+}
+
+func noError(t *testing.T, err error, msgAndArgs ...any) {
+	t.Helper()
+	if err != nil {
+		t.Fatalf("unexpected error: %v\n%s", err,
+			""+messageFromMsgAndArgs(msgAndArgs...),
+		)
+	}
+}
+
+func wantError(t *testing.T, err error, msgAndArgs ...any) {
+	t.Helper()
+	if err == nil {
+		t.Fatalf("expected error, got nil\n%s",
+			""+messageFromMsgAndArgs(msgAndArgs...),
+		)
+	}
+}
+
+func wantEqual(t *testing.T, expected, actual interface{}) {
+	t.Helper()
+	if expected != actual {
+		t.Fatalf("expected %v, got %v", expected, actual)
+	}
+}
+
+func messageFromMsgAndArgs(msgAndArgs ...interface{}) string {
+	if len(msgAndArgs) == 0 || msgAndArgs == nil {
+		return ""
+	}
+	if len(msgAndArgs) == 1 {
+		msg := msgAndArgs[0]
+		if msgAsStr, ok := msg.(string); ok {
+			return msgAsStr
+		}
+		return fmt.Sprintf("%+v", msg)
+	}
+	if len(msgAndArgs) > 1 {
+		return fmt.Sprintf(msgAndArgs[0].(string), msgAndArgs[1:]...)
+	}
+	return ""
 }
