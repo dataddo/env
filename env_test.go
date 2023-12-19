@@ -6,6 +6,7 @@ import (
 	"math"
 	"net/url"
 	"os"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -650,9 +651,9 @@ func wantError(t *testing.T, err error, msgAndArgs ...any) {
 	}
 }
 
-func wantEqual(t *testing.T, expected, actual interface{}) {
+func wantEqual[T any](t *testing.T, expected, actual T) {
 	t.Helper()
-	if expected != actual {
+	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("expected %v, got %v", expected, actual)
 	}
 }
